@@ -12,4 +12,5 @@ Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
   app.name = 'Alenkator'
   app.archs += ['x86']
+  app.permissions += ["android.permission.WRITE_EXTERNAL_STORAGE"]
 end

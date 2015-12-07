@@ -23,18 +23,31 @@ class MainActivity < Android::App::Activity
 
   end
 
-  REQUEST_IMAGE_CAPTURE = 1
+  REQUEST_TAKE_PHOTO = 1
+  REQUEST_IMAGE_CAPTURE = 2
 
   def onClick(view)
     takePictureIntent = Android::Content::Intent.new(Android::Provider::MediaStore::ACTION_IMAGE_CAPTURE)
     if takePictureIntent.resolveActivity(getPackageManager())
-      startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+      # Create the File where the photo should go
+      photoFile = createImageFile()
+
+      # Continue only if the File was successfully created
+      if photoFile
+           takePictureIntent.putExtra(Android::Provider::MediaStore::EXTRA_OUTPUT,
+                                      Android::Net::Uri.fromFile(photoFile))
+           startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO)
+      end
     end
   end
 
   def onActivityResult(requestCode, resultCode, data)
+    if requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK
+      galleryAddPic()
+    end
+    
     if requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK
-      extras = data.getExtras()
+      extras = data.getExtras
       photo = extras.get("data")
       @image_view_value.setVisibility(0)
       @image_view_value.setImageBitmap(photo)
@@ -50,5 +63,31 @@ class MainActivity < Android::App::Activity
       #      media.insertImage(getContentResolver(), photo,
       #                        "New snap!", "From Alenkator");
     end
+  end
+
+  def createImageFile()
+    # Create an image file name
+    timeStamp = Java::Text::SimpleDateFormat.new("yyyy-MM-dd HH:mm:ss").format(Java::Util::Date.new())
+    imageFileName = "Alenkator " + timeStamp + "_"
+    storageDir = Android::Os::Environment.getExternalStoragePublicDirectory(
+      Android::Os::Environment::DIRECTORY_PICTURES)
+    image = Java::Io::File.createTempFile(
+      imageFileName, # /* prefix */
+      ".jpg", #        /* suffix */
+      storageDir #     /* directory */
+    )
+
+    # Save a file: path for use with ACTION_VIEW intents
+    @current_photo_path = "file:" + image.getAbsolutePath()
+    return image
+  end
+
+  def galleryAddPic()
+    mediaScanIntent = Android::Content::Intent.new(Android::Content::Intent::ACTION_MEDIA_SCANNER_SCAN_FILE)
+    f = Java::Io::File.new(@current_photo_path)
+    contentUri = Android::Net::Uri.fromFile(f)
+    puts contentUri
+    mediaScanIntent.setData(contentUri)
+    sendBroadcast(mediaScanIntent)
   end
 end
