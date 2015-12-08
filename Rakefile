@@ -13,4 +13,7 @@ Motion::Project::App.setup do |app|
   app.name = 'Alenkator'
   app.archs += ['x86']
   app.permissions += ["android.permission.WRITE_EXTERNAL_STORAGE"]
+  app.package = "co.evecon"
+  app.version_code = "1"
+  app.version_name = "1.0"
 end
