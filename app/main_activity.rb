@@ -54,7 +54,6 @@ class MainActivity < Android::App::Activity
   def onActivityResult(requestCode, resultCode, data)
     if requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK
       setWatermark()
-      galleryAddPic()
     end
     
     if requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK
@@ -86,14 +85,6 @@ class MainActivity < Android::App::Activity
     @current_image = image
     @current_wm_image = wm_image
     return image
-  end
-
-  def galleryAddPic()
-    mediaScanIntent = Android::Content::Intent.new(Android::Content::Intent::ACTION_MEDIA_SCANNER_SCAN_FILE)
-    contentUri = Android::Net::Uri.fromFile(@current_wm_image)
-    puts contentUri
-    mediaScanIntent.setData(contentUri)
-    sendBroadcast(mediaScanIntent)
   end
 
   def setWatermark()
