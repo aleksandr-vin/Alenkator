@@ -1,3 +1,4 @@
+# coding: utf-8
 ##
 ## See tutorial http://developer.android.com/intl/ru/training/camera/photobasics.html
 ##
@@ -88,34 +89,57 @@ class MainActivity < Android::App::Activity
   end
 
   def setWatermark()
-    src = Android::Graphics::BitmapFactory.decodeFile(@current_image)
+    begin
+      src = Android::Graphics::BitmapFactory.decodeFile(@current_image)
 
-    w = src.getWidth()
-    h = src.getHeight()
-    result = Android::Graphics::Bitmap.createBitmap(w, h, src.getConfig())
+      w = src.getWidth()
+      h = src.getHeight()
+      result = Android::Graphics::Bitmap.createBitmap(w, h, src.getConfig())
 
-    canvas = Android::Graphics::Canvas.new(result)
-    canvas.drawBitmap(src, 0, 0, nil)
+      canvas = Android::Graphics::Canvas.new(result)
+      canvas.drawBitmap(src, 0, 0, nil)
 
-    paint = Android::Graphics::Paint.new()
+      paint = Android::Graphics::Paint.new()
 
-    color = Android::Graphics::Color::RED
-    alpha = 85
-    size = 20
-    underline = false
-    watermark = @timeStamp
-    x = 20
-    y = 20
-    paint.setColor(color)
-    paint.setAlpha(alpha)
-    paint.setTextSize(size)
-    paint.setAntiAlias(true)
-    paint.setUnderlineText(underline)
-    canvas.drawText(watermark, x, y, paint)
+      color = Android::Graphics::Color::RED
+      alpha = 85
+      size = 20
+      underline = false
+      watermark = @timeStamp
+      x = 20
+      y = 20
+      paint.setColor(color)
+      paint.setAlpha(alpha)
+      paint.setTextSize(size)
+      paint.setAntiAlias(true)
+      paint.setUnderlineText(underline)
+      canvas.drawText(watermark, x, y, paint)
 
-    out = Java::Io::FileOutputStream.new(@current_wm_image)
-    result.compress(Android::Graphics::Bitmap::CompressFormat::JPEG, 90, out)
-    out.flush()
-    out.close()
+      out = Java::Io::FileOutputStream.new(@current_wm_image)
+      result.compress(Android::Graphics::Bitmap::CompressFormat::JPEG, 90, out)
+      out.flush()
+      out.close()
+
+      context = getApplicationContext()
+      duration = Android::Widget::Toast::LENGTH_LONG
+      toast = Android::Widget::Toast.makeText(context, "Saved to " + @current_wm_image.getCanonicalPath(), duration)
+      toast.show()
+      puts "toast.show() done"
+
+    rescue Exception => e
+      puts ">>>>>>> Exception: " + e.message
+      text = ""
+      for line in e.backtrace do
+        text += line + "\n"
+      end
+
+      builder = Android::App::AlertDialog::Builder.new(self)
+      builder.setTitle(e.message)
+        .setMessage(text)
+        .setCancelable(false)
+        .setNegativeButton("Close", nil)
+      alert = builder.create()
+      alert.show()
+    end
   end
 end
