@@ -15,5 +15,5 @@ Motion::Project::App.setup do |app|
   app.permissions += ["android.permission.WRITE_EXTERNAL_STORAGE"]
   app.package = "co.evecon"
   app.version_code = "1"
-  app.version_name = "1.0"
+  app.version_name = `git describe --tags --dirty`
 end
