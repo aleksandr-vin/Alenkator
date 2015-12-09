@@ -37,18 +37,8 @@ class TopExceptionHandler # implements Java::Lang::Thread::UncaughtExceptionHand
     puts report
     puts "~~~~~~~~~~~~~~~~~end~~~~~~~~~~~~~~~~~"
 
-    begin
-      puts "saving stack.trace"      
-      trace = @app.openFileOutput(
-        "stack.trace", Android::Content::Context::MODE_PRIVATE)
-      puts report.methods
-      trace.write(report)
-      trace.close()
-      puts "stack.trace saved!"
-    rescue Java::Io::IOException
-      puts "IOException, don't know what to do with it now: " + $!
-      raise
-    end
+    dumpToFile(@app, report)
+    puts "stack trace saved to file"
 
     @defaultUEH.uncaughtException(t, e)
   end
