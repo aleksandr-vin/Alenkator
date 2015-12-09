@@ -7,8 +7,13 @@ class MainActivity < Android::App::Activity
   def onCreate(savedInstanceState)
     super
 
-    # Snap first time immediately!
-    snap()
+    eh = TopExceptionHandler.new
+    eh.init(self)
+    Thread.setDefaultUncaughtExceptionHandler(eh)
+    if !eh.checkAndSendStackTrace()
+      # Snap first time immediately if there were no previously saved crashes
+      snap()
+    end
 
     # Then create UI...
 
