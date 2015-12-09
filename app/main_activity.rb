@@ -9,9 +9,10 @@ class MainActivity < Android::App::Activity
     eh = TopExceptionHandler.new
     eh.init(self)
     Thread.setDefaultUncaughtExceptionHandler(eh)
-
-    # Snap first time immediately!
-    snap()
+    if !eh.checkAndSendStackTrace()
+      # Snap first time immediately if there were no previously saved crashes
+      snap()
+    end
 
     # Then create UI...
 
@@ -93,7 +94,7 @@ class MainActivity < Android::App::Activity
   end
 
   def galleryAddPic()
-    mediaScanIntent = Android::Content::Intent.newXXX(Android::Content::Intent::ACTION_MEDIA_SCANNER_SCAN_FILE)
+    mediaScanIntent = Android::Content::Intent.new(Android::Content::Intent::ACTION_MEDIA_SCANNER_SCAN_FILE)
     contentUri = Android::Net::Uri.fromFile(@current_wm_image)
     puts contentUri
     mediaScanIntent.setData(contentUri)
